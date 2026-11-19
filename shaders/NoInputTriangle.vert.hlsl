@@ -16,6 +16,6 @@ VSOut main(uint vertexID : SV_VertexID)
         output.position = float4(0.0, -0.5, 0.0, 1.0);
     }
 
-    output.color = float4(0.1, 0.2, 0.4, 1.0);
+    output.color = float4(0.76, 0.41, 0.20, 1.0);
     return output;
 }

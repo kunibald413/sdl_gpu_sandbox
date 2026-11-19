@@ -3,6 +3,14 @@
 #include <SDL3/SDL_main.h>
 
 #include "shaders.h"
+#include "example_base.h"
+#include "examples.h"
+
+static Example *Examples[] = {
+    &ClearScreen_Example,
+    &FixedTriangle_Example,
+};
+#define NUM_EXAMPLES SDL_arraysize(Examples)
 
 #define WINDOW_TITLE  "Demo"
 #define WINDOW_WIDTH  800
@@ -15,11 +23,8 @@
 
 
 typedef struct AppState {
-    SDL_Window    *Window;
-    SDL_GPUDevice *Device;
-
-    // custom
-    SDL_GPUGraphicsPipeline* CustomPipeline;
+    Context Context;
+    int CurrentExample;
 } AppState;
 
 
@@ -49,7 +54,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
 
     SDL_Log("GPU backend: %s", SDL_GetGPUDeviceDriver(device));
 
-    SDL_WindowFlags window_flags = 0;
+    SDL_WindowFlags window_flags = SDL_WINDOW_RESIZABLE;
     SDL_Window *window = SDL_CreateWindow(
         WINDOW_TITLE,
         WINDOW_WIDTH,
@@ -87,35 +92,14 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
         SDL_DestroyGPUDevice(device);
         return SDL_APP_FAILURE;
     }
-    state->Window = window;
-    state->Device = device;
+    state->Context.Window = window;
+    state->Context.Device = device;
 
     *appstate = state;
 
-    // custom
-    SDL_GPUShader* frag_empty = LoadShader(device, "Empty.frag", 0,0,0,0);
-    SDL_GPUShader* vert_no_input_triangle = LoadShader(device, "NoInputTriangle.vert", 0,0,0,0);
-    SDL_GPUShader* frag_solid_color = LoadShader(device, "SolidColor.frag", 0,0,0,0);
+    state->CurrentExample = 1;
 
-    SDL_GPUGraphicsPipelineCreateInfo pipelineCreateInfo = {
-            .target_info = {
-                .num_color_targets = 1,
-                .color_target_descriptions = (SDL_GPUColorTargetDescription[]){{
-                    .format = SDL_GetGPUSwapchainTextureFormat(device, window)
-                }},
-            },
-            .primitive_type = SDL_GPU_PRIMITIVETYPE_TRIANGLELIST,
-            .vertex_shader = vert_no_input_triangle,
-            .fragment_shader = frag_solid_color,
-        };
-
-	pipelineCreateInfo.rasterizer_state.fill_mode = SDL_GPU_FILLMODE_FILL;
-	state->CustomPipeline = SDL_CreateGPUGraphicsPipeline(device, &pipelineCreateInfo);
-
-    SDL_ReleaseGPUShader(device, frag_empty);
-	SDL_ReleaseGPUShader(device, vert_no_input_triangle);
-	SDL_ReleaseGPUShader(device, frag_solid_color);
-    // end custom
+    Examples[state->CurrentExample]->Init(&state->Context);
 
     return SDL_APP_CONTINUE;
 }
@@ -137,42 +121,7 @@ SDL_AppResult SDL_AppIterate(void *appstate)
 {
     AppState *state = (AppState *)appstate;
 
-    SDL_GPUCommandBuffer *cmd = SDL_AcquireGPUCommandBuffer(state->Device);
-    if (!cmd) {
-        SDL_Log("Failed to acquire command buffer: %s", SDL_GetError());
-        return SDL_APP_FAILURE;
-    }
-
-    SDL_GPUTexture *swapchain = NULL;
-    if (!SDL_AcquireGPUSwapchainTexture(cmd, state->Window, &swapchain, NULL, NULL)) {
-        SDL_Log("Failed to acquire swapchain: %s", SDL_GetError());
-        return SDL_APP_FAILURE;
-    }
-
-    if (swapchain) {
-        SDL_GPUColorTargetInfo color_target = { 0 };
-        color_target.texture     = swapchain;
-        color_target.load_op     = SDL_GPU_LOADOP_CLEAR;
-        color_target.store_op    = SDL_GPU_STOREOP_STORE;
-        color_target.clear_color = (SDL_FColor){ CLEAR_R, CLEAR_G, CLEAR_B, CLEAR_A };
-
-        SDL_GPURenderPass *pass = SDL_BeginGPURenderPass(
-            cmd,
-            &color_target, 1,   // one color target
-            NULL                // no depth/stencil
-        );
-
-        // custom
-        SDL_BindGPUGraphicsPipeline(pass, state->CustomPipeline);
-        SDL_DrawGPUPrimitives(pass, 3, 1, 0, 0);
-        // end custom
-
-        SDL_EndGPURenderPass(pass);
-    }
-
-    {
-        SDL_SubmitGPUCommandBuffer(cmd);
-    }
+    Examples[state->CurrentExample]->Draw(&state->Context);
 
     return SDL_APP_CONTINUE;
 }
@@ -181,12 +130,12 @@ SDL_AppResult SDL_AppIterate(void *appstate)
 void SDL_AppQuit(void *appstate, SDL_AppResult result)
 {
     (void)result;
-
     AppState *state = (AppState *)appstate;
     if (state) {
-        SDL_ReleaseWindowFromGPUDevice(state->Device, state->Window);
-        SDL_DestroyWindow(state->Window);
-        SDL_DestroyGPUDevice(state->Device);
+        Context ctx = state->Context;
+        SDL_ReleaseWindowFromGPUDevice(ctx.Device, ctx.Window);
+        SDL_DestroyWindow(ctx.Window);
+        SDL_DestroyGPUDevice(ctx.Device);
         SDL_free(state);
     }
 }
