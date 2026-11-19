@@ -1,0 +1,3 @@
+# local.cmake.example: copy to local.cmake (git-ignored) and edit.
+# Prebuilt SDL3 dev packages: https://github.com/libsdl-org/SDL/releases
+set(SDL3_DIR "/path/to/SDL3-3.4.12/cmake" CACHE PATH "")
