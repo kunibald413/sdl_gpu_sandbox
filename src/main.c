@@ -2,7 +2,7 @@
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_main.h>
 
-#include "shaders.c"
+#include "shaders.h"
 
 #define WINDOW_TITLE  "Demo"
 #define WINDOW_WIDTH  800

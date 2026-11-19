@@ -9,7 +9,10 @@ include("${CMAKE_CURRENT_SOURCE_DIR}/local.cmake" OPTIONAL)
 find_package(SDL3 3.4 REQUIRED CONFIG)
 message(STATUS "SDL3 config: ${SDL3_DIR}")
 
-add_executable(${PROJECT_NAME} src/main.c)
+add_executable(${PROJECT_NAME} 
+    src/main.c
+    src/shaders.c
+)
 
 target_link_libraries(${PROJECT_NAME} PRIVATE SDL3::SDL3)
 
