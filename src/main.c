@@ -9,6 +9,7 @@
 static Example *Examples[] = {
     &ClearScreen_Example,
     &FixedTriangle_Example,
+    &BasicTriangle_Example,
 };
 #define NUM_EXAMPLES SDL_arraysize(Examples)
 

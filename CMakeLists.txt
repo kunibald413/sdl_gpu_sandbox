@@ -14,6 +14,7 @@ add_executable(${PROJECT_NAME}
     src/shaders.c
     src/clear_screen.c
     src/fixed_triangle.c
+    src/basic_triangle.c
 )
 
 target_link_libraries(${PROJECT_NAME} PRIVATE SDL3::SDL3)
