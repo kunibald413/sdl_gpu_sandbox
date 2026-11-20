@@ -27,8 +27,26 @@ static Example *Examples[] = {
 typedef struct AppState {
     Context Context;
     int CurrentExample;
+    int RequestedExample;
 } AppState;
 
+static void TryStartExample(AppState *state) {
+    int req = state->RequestedExample;
+    if (req >= 0 && req != state->CurrentExample)  {
+        int next_idx = req % NUM_EXAMPLES;
+        
+        if (state->CurrentExample >= 0) {
+            Examples[state->CurrentExample]->Quit(&state->Context);
+        } 
+
+        SDL_Log("Start example: %d %s", next_idx, Examples[next_idx]->Name);
+
+        Examples[next_idx]->Init(&state->Context);
+
+        state->CurrentExample = next_idx;
+        state->RequestedExample = -1;
+    }
+}
 
 SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
 {
@@ -96,12 +114,10 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
     }
     state->Context.Window = window;
     state->Context.Device = device;
+    state->CurrentExample = -1;
+    state->RequestedExample = 0;
 
     *appstate = state;
-
-    state->CurrentExample = 3;
-
-    Examples[state->CurrentExample]->Init(&state->Context);
 
     return SDL_APP_CONTINUE;
 }
@@ -109,10 +125,18 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
 // called once per event
 SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event)
 {
-    (void)appstate;
+    AppState *state = (AppState *)appstate;
 
     if (event->type == SDL_EVENT_QUIT) {
         return SDL_APP_SUCCESS;
+    } else if (event->type == SDL_EVENT_KEY_DOWN) {
+        if(event->key.key == SDLK_LEFT) {
+            state->RequestedExample = state->CurrentExample - 1;
+            if (state->RequestedExample < 0) state->RequestedExample = NUM_EXAMPLES - 1;
+        } else if (event->key.key == SDLK_RIGHT) {
+            state->RequestedExample = state->CurrentExample + 1;
+        }
+
     }
 
     return SDL_APP_CONTINUE;
@@ -123,7 +147,11 @@ SDL_AppResult SDL_AppIterate(void *appstate)
 {
     AppState *state = (AppState *)appstate;
 
-    Examples[state->CurrentExample]->Draw(&state->Context);
+    TryStartExample(state);
+
+    if (state->CurrentExample >= 0 && state->CurrentExample < NUM_EXAMPLES) {
+        Examples[state->CurrentExample]->Draw(&state->Context);
+    }
 
     return SDL_APP_CONTINUE;
 }
