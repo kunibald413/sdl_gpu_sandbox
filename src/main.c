@@ -10,6 +10,7 @@ static Example *Examples[] = {
     &ClearScreen_Example,
     &FixedTriangle_Example,
     &BasicTriangleVertexBuffer_Example,
+    &FixedQuad_Example,
 };
 #define NUM_EXAMPLES SDL_arraysize(Examples)
 
@@ -98,7 +99,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
 
     *appstate = state;
 
-    state->CurrentExample = 2;
+    state->CurrentExample = 3;
 
     Examples[state->CurrentExample]->Init(&state->Context);
 
