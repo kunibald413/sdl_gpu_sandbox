@@ -4,6 +4,6 @@
 
 extern Example ClearScreen_Example;
 extern Example FixedTriangle_Example;
-extern Example BasicTriangle_Example;
+extern Example BasicTriangleVertexBuffer_Example;
 
 #endif

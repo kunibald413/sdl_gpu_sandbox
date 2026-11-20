@@ -15,7 +15,7 @@ static int Init(Context *c) {
     data->ClearColor = (SDL_FColor){0.0, 0.01, 0.02, 1.0};
 
     SDL_GPUShader* vert = LoadShader(c->Device, "NoInputTriangle.vert", 0,0,0,0);
-    SDL_GPUShader* frag = LoadShader(c->Device, "SolidColor.frag", 0,0,0,0);
+    SDL_GPUShader* frag = LoadShader(c->Device, "ColorPassthrough.frag", 0,0,0,0);
 
     SDL_GPUGraphicsPipelineCreateInfo pipelineCreateInfo = {
             .target_info = {
