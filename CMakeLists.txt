@@ -12,10 +12,10 @@ message(STATUS "SDL3 config: ${SDL3_DIR}")
 add_executable(${PROJECT_NAME} 
     src/main.c
     src/shaders.c
-    src/clear_screen.c
-    src/fixed_triangle.c
-    src/basic_triangle_vertex_buffer.c
-    src/fixed_quad.c
+    src/000_clear_screen.c
+    src/001_fixed_triangle.c
+    src/002_basic_triangle_vertex_buffer.c
+    src/003_fixed_quad.c
 )
 
 target_link_libraries(${PROJECT_NAME} PRIVATE SDL3::SDL3)
