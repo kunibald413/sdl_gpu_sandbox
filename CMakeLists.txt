@@ -16,6 +16,7 @@ add_executable(${PROJECT_NAME}
     src/001_fixed_triangle.c
     src/002_basic_triangle_vertex_buffer.c
     src/003_fixed_quad.c
+    src/004_basic_index_buffer.c
 )
 
 target_link_libraries(${PROJECT_NAME} PRIVATE SDL3::SDL3)
