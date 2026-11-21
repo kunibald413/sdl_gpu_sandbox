@@ -12,6 +12,7 @@ static Example *Examples[] = {
     &BasicTriangleVertexBuffer_Example,
     &FixedQuad_Example,
     &BasicIndexBuffer_Example,
+    &BasicUniform_Example
 };
 #define NUM_EXAMPLES SDL_arraysize(Examples)
 
@@ -46,6 +47,8 @@ static void TryStartExample(AppState *state) {
 
         state->CurrentExample = next_idx;
         state->RequestedExample = -1;
+
+        SDL_SetWindowTitle(state->Context.Window, Examples[next_idx]->Name);
     }
 }
 
@@ -116,7 +119,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
     state->Context.Window = window;
     state->Context.Device = device;
     state->CurrentExample = -1;
-    state->RequestedExample = 0;
+    state->RequestedExample = NUM_EXAMPLES - 1;
 
     *appstate = state;
 
