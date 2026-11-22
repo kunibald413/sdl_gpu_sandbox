@@ -8,5 +8,6 @@ extern Example BasicTriangleVertexBuffer_Example;
 extern Example FixedQuad_Example;
 extern Example BasicIndexBuffer_Example;
 extern Example BasicUniform_Example;
+extern Example BasicTexture_Example;
 
 #endif

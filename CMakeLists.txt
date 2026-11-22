@@ -18,6 +18,8 @@ add_executable(${PROJECT_NAME}
     src/003_fixed_quad.c
     src/004_basic_index_buffer.c
     src/005_basic_uniform.c
+    src/006_basic_texture.c
+    src/img.c
 )
 
 target_link_libraries(${PROJECT_NAME} PRIVATE SDL3::SDL3)
@@ -34,4 +36,12 @@ add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
         ${CMAKE_SOURCE_DIR}/shaders/compiled 
         $<TARGET_FILE_DIR:${PROJECT_NAME}>/shaders/compiled
     COMMENT "Copying compiled shaders"
+)
+
+
+add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_directory 
+        ${CMAKE_SOURCE_DIR}/assets 
+        $<TARGET_FILE_DIR:${PROJECT_NAME}>/assets
+    COMMENT "Copying assets"
 )

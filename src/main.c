@@ -12,7 +12,8 @@ static Example *Examples[] = {
     &BasicTriangleVertexBuffer_Example,
     &FixedQuad_Example,
     &BasicIndexBuffer_Example,
-    &BasicUniform_Example
+    &BasicUniform_Example,
+    &BasicTexture_Example
 };
 #define NUM_EXAMPLES SDL_arraysize(Examples)
 
