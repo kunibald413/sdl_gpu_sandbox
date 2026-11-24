@@ -19,6 +19,7 @@ add_executable(${PROJECT_NAME}
     src/004_basic_index_buffer.c
     src/005_basic_uniform.c
     src/006_basic_texture.c
+    src/basic_3d_pyramid.c
     src/img.c
 )
 

@@ -9,5 +9,6 @@ extern Example FixedQuad_Example;
 extern Example BasicIndexBuffer_Example;
 extern Example BasicUniform_Example;
 extern Example BasicTexture_Example;
+extern Example Basic3DPyramid_Example;
 
 #endif
