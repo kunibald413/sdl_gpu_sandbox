@@ -214,7 +214,7 @@ static int Draw(Context *c) {
     return 0;
 }
 
-void Quit(Context *c) {
+static void Quit(Context *c) {
     Basic3DPyramidContext* data = (Basic3DPyramidContext*)c->ExampleData;
 
     SDL_ReleaseGPUGraphicsPipeline(c->Device, data->Pipeline);
