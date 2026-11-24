@@ -145,6 +145,12 @@ SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event)
 
     }
 
+    if (state->CurrentExample >= 0 && state->CurrentExample < NUM_EXAMPLES) {
+        if (Examples[state->CurrentExample]->OnAppEvent != NULL){
+            Examples[state->CurrentExample]->OnAppEvent(&state->Context, event);
+        }
+    }
+
     return SDL_APP_CONTINUE;
 }
 

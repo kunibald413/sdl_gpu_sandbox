@@ -15,6 +15,7 @@ typedef struct Example {
     int  (*Update) (Context *c);
     int  (*Draw)   (Context *c);
     void (*Quit)   (Context *c);
+    void (*OnAppEvent)   (Context *c, SDL_Event *e);
 } Example;
 
 #endif // !DEMO_EXAMPLE_BASE_H
