@@ -15,6 +15,7 @@ static Example *Examples[] = {
     &BasicUniform_Example,
     &BasicTexture_Example,
     &Basic3DPyramid_Example,
+    &Pong_Example,
 };
 #define NUM_EXAMPLES SDL_arraysize(Examples)
 

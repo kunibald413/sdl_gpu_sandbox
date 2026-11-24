@@ -10,5 +10,6 @@ extern Example BasicIndexBuffer_Example;
 extern Example BasicUniform_Example;
 extern Example BasicTexture_Example;
 extern Example Basic3DPyramid_Example;
+extern Example Pong_Example;
 
 #endif

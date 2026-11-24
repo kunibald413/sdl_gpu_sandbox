@@ -20,6 +20,7 @@ add_executable(${PROJECT_NAME}
     src/005_basic_uniform.c
     src/006_basic_texture.c
     src/basic_3d_pyramid.c
+    src/pong.c
     src/img.c
 )
 
