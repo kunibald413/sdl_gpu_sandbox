@@ -156,6 +156,7 @@ SDL_AppResult SDL_AppIterate(void *appstate)
     TryStartExample(state);
 
     if (state->CurrentExample >= 0 && state->CurrentExample < NUM_EXAMPLES) {
+        Examples[state->CurrentExample]->Update(&state->Context);
         Examples[state->CurrentExample]->Draw(&state->Context);
     }
 

@@ -14,6 +14,7 @@ typedef struct Basic3DPyramidContext {
     SDL_GPUGraphicsPipeline *Pipeline;
     SDL_GPUBuffer *VertexBuffer;
     SDL_GPUBuffer *IndexBuffer;
+    Uint64 ExampleStartTicks;
 } Basic3DPyramidContext;
 
 
@@ -51,7 +52,9 @@ static int Init(Context *c) {
             .format = SDL_GetGPUSwapchainTextureFormat(device, window)
         }}, 
     };
+    // pi.rasterizer_state.fill_mode = SDL_GPU_FILLMODE_FILL;
     pi.rasterizer_state.fill_mode = SDL_GPU_FILLMODE_LINE;
+    pi.rasterizer_state.enable_depth_clip = true; // enable z/depth clipping
 
     const Uint16 BUFF_SLOT = 0;
     pi.vertex_input_state = (SDL_GPUVertexInputState) {
@@ -148,6 +151,7 @@ static int Init(Context *c) {
     ctx->Pipeline = pipe;
     ctx->VertexBuffer = vert_buff;
     ctx->IndexBuffer = index_buff;
+    ctx->ExampleStartTicks = SDL_GetTicks();
     c->ExampleData = ctx;
 
     return 0;
@@ -163,14 +167,19 @@ static int Draw(Context *c) {
 
     SDL_GPUCommandBuffer *cmd = SDL_AcquireGPUCommandBuffer(c->Device);
 
-    // push before starting render pass, row major
-    float matrix[4*4] = {
+    // pyramid is sliding back and forth through visible Z clipspace (0.0 to 1.0)
+    float elapsed = (float)(SDL_GetTicks() - ctx->ExampleStartTicks) / 1000.0;
+    float z_add = SDL_sinf(elapsed) * 1.0;
+    z_add += 0.1;
+    
+    float mat_identity[4*4] = {
         1.0, 0.0, 0.0, 0.0,
         0.0, 1.0, 0.0, 0.0,
-        0.0, 0.0, 1.0, 0.0,
+        0.0, 0.0, 1.0, z_add,
         0.0, 0.0, 0.0, 1.0,
     };
-    SDL_PushGPUVertexUniformData(cmd, 0, &matrix, sizeof(matrix));
+    // push before starting render pass, row major
+    SDL_PushGPUVertexUniformData(cmd, 0, &mat_identity, sizeof(mat_identity));
 
     SDL_GPUTexture *swapchain = NULL;
     if (!SDL_WaitAndAcquireGPUSwapchainTexture(cmd, c->Window, &swapchain, NULL, NULL))
