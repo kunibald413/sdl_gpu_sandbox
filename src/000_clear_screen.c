@@ -34,8 +34,8 @@ static int Draw(Context *c) {
         cti.clear_color = data->Color;
         cti.load_op     = SDL_GPU_LOADOP_CLEAR;
         cti.store_op    = SDL_GPU_STOREOP_STORE;
-        SDL_GPURenderPass *p = SDL_BeginGPURenderPass(cmd, &cti, 1, NULL);
-        SDL_EndGPURenderPass(p);
+        SDL_GPURenderPass *pass = SDL_BeginGPURenderPass(cmd, &cti, 1, NULL);
+        SDL_EndGPURenderPass(pass);
     }
     SDL_SubmitGPUCommandBuffer(cmd);
 

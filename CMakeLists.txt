@@ -12,6 +12,8 @@ message(STATUS "SDL3 config: ${SDL3_DIR}")
 add_executable(${PROJECT_NAME} 
     src/main.c
     src/shaders.c
+    src/img.c
+
     src/000_clear_screen.c
     src/001_fixed_triangle.c
     src/002_basic_triangle_vertex_buffer.c
@@ -21,7 +23,8 @@ add_executable(${PROJECT_NAME}
     src/006_basic_texture.c
     src/basic_3d_pyramid.c
     src/pong.c
-    src/img.c
+    src/basic_compute.c
+    
 )
 
 target_link_libraries(${PROJECT_NAME} PRIVATE SDL3::SDL3)
