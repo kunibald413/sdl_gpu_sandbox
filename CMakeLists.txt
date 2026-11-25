@@ -24,6 +24,7 @@ add_executable(${PROJECT_NAME}
     src/basic_3d_pyramid.c
     src/pong.c
     src/basic_compute.c
+    src/hex_fractal_stateless.c
     
 )
 

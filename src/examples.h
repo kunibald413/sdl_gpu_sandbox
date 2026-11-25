@@ -12,5 +12,6 @@ extern Example BasicTexture_Example;
 extern Example Basic3DPyramid_Example;
 extern Example Pong_Example;
 extern Example BasicCompute_Example;
+extern Example HexFractalStateless_Example;
 
 #endif
