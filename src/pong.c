@@ -18,6 +18,12 @@ typedef struct PongContext {
     char LasteEventDesc[256];
 
     float PlayerY;
+
+    float BallVelocityY;
+    float BallVelocityX;
+    float BallPosX;
+    float BallPosY;
+
 } PongContext;
 
 
@@ -57,8 +63,8 @@ static int Init(Context *c) {
             .format = SDL_GetGPUSwapchainTextureFormat(device, window)
         }}, 
     };
-    // pi.rasterizer_state.fill_mode = SDL_GPU_FILLMODE_FILL;
     pi.rasterizer_state.fill_mode = SDL_GPU_FILLMODE_LINE;
+    pi.rasterizer_state.fill_mode = SDL_GPU_FILLMODE_FILL;
     pi.rasterizer_state.enable_depth_clip = true; // enable z/depth clipping
 
     const Uint16 BUFF_SLOT = 0;
@@ -93,18 +99,16 @@ static int Init(Context *c) {
     // buffers: vertex, index
 
     PongVert verticies[4] = {
-        {  0.0,  0.5,   0.0,  0.5, 0.5, 0.0}, // TOP
-        { -0.5, -0.5,   0.5,  0.0, 1.0, 1.0}, // BOT LEFT
-        {  0.5, -0.5,   0.5,  1.0, 0.0, 1.0}, // BOT RIGHT
-        {  0.0,  0.0,  -0.5,  1.0, 1.0, 0.0}, // BACK
+        { -0.5,  0.5,   0.0,  0.5, 0.5, 0.0}, // TOP LEFT
+        {  0.5,  0.5,   0.0,  0.0, 1.0, 1.0}, // TOP RIGHT
+        { -0.5, -0.5,   0.0,  1.0, 0.0, 1.0}, // BOT LEFT
+        {  0.5, -0.5,   0.0,  1.0, 1.0, 0.0}, // BOT RIGHT
     };
 
     // 4 faces
-    int indicies[4*3] = {
+    int indicies[2*3] = {
         0,1,2, // front
-        0,2,3, // right
-        0,1,3, // left
-        1,2,3 // bot
+        1,2,3, // right
     };
 
     // DEFINE BUFFERS AND TRANSFER, LORD JESUS HELP ME
@@ -158,7 +162,9 @@ static int Init(Context *c) {
     ctx->IndexBuffer = index_buff;
     ctx->ExampleStartTicks = SDL_GetTicks();
 
-    ctx->PlayerY = 0.5;
+    ctx->PlayerY = 0.0;
+    ctx->BallVelocityX = 0.01;
+    ctx->BallVelocityY = 0.0001;
 
     c->ExampleData = ctx;
 
@@ -172,8 +178,8 @@ static void OnAppEvent(Context *c, SDL_Event *event) {
     SDL_GetEventDescription(event, ctx->LasteEventDesc, sizeof(ctx->LasteEventDesc));
     SDL_Log("Handel event: %d %s", event->type, ctx->LasteEventDesc);
 
-    const float min = -0.5;
-    const float max = 0.5;
+    const float min = -0.75;
+    const float max = 0.75;
     const float speed = 0.05;
     if (event->type == SDL_EVENT_KEY_DOWN) {
         if (event->key.key == SDLK_DOWN) {
@@ -188,6 +194,15 @@ static void OnAppEvent(Context *c, SDL_Event *event) {
 }
 
 static int Update(Context *c) {
+    PongContext* ctx = (PongContext *)c->ExampleData;
+
+    // bounce off of edges
+    if (ctx->BallPosX < -1.0 || ctx->BallPosX > 1.0) ctx->BallVelocityX *= -1;
+    if (ctx->BallPosY < -1.0 || ctx->BallPosY > 1.0) ctx->BallVelocityY *= -1;
+
+    ctx->BallPosX += ctx->BallVelocityX;
+    ctx->BallPosY += ctx->BallVelocityY;
+
     return 0;
 }
 
@@ -199,16 +214,19 @@ static int Draw(Context *c) {
 
     float elapsed = (float)(SDL_GetTicks() - ctx->ExampleStartTicks) / 1000.0;
     float z_add = SDL_sinf(elapsed) * 0.5;
+    float opp_y = SDL_sinf(elapsed) + 0.25;
     z_add += 0.0;
+
+    const float scale_player = 0.5;
+    const float scale_ball = 0.1;
     
     float mat_identity[4*4] = {
-        1.0, 0.0, 0.0, 0.0,
-        0.0, 1.0, 0.0, ctx->PlayerY,
-        0.0, 0.0, 1.0, 0.5,
+        0.5, 0.0, 0.0, 0.0,
+        0.0, 0.5, 0.0, ctx->PlayerY,
+        0.0, 0.0, 0.5, 0.5,
         0.0, 0.0, 0.0, 1.0,
     };
-    // push before starting render pass, row major
-    SDL_PushGPUVertexUniformData(cmd, 0, &mat_identity, sizeof(mat_identity));
+
 
     SDL_GPUTexture *swapchain = NULL;
     if (!SDL_WaitAndAcquireGPUSwapchainTexture(cmd, c->Window, &swapchain, NULL, NULL))
@@ -234,7 +252,28 @@ static int Draw(Context *c) {
         buff_bind_idx.offset = 0;
         SDL_BindGPUIndexBuffer(pass, &buff_bind_idx, SDL_GPU_INDEXELEMENTSIZE_32BIT);
 
-        SDL_DrawGPUIndexedPrimitives(pass, 12, 1, 0, 0, 0);
+        
+        mat_identity[4 * 0 + 3] = -0.70;
+        mat_identity[4 * 0 + 0] = scale_player;
+        mat_identity[4 * 1 + 1] = scale_player;
+        mat_identity[4 * 2 + 2] = scale_player;
+        SDL_PushGPUVertexUniformData(cmd, 0, &mat_identity, sizeof(mat_identity));
+        SDL_DrawGPUIndexedPrimitives(pass, 6, 1, 0, 0, 0);
+
+        mat_identity[4 * 0 + 3] = 0.70;
+        mat_identity[4 * 1 + 3] = opp_y;
+        SDL_PushGPUVertexUniformData(cmd, 0, &mat_identity, sizeof(mat_identity));
+        SDL_DrawGPUIndexedPrimitives(pass, 6, 1, 0, 0, 0);
+        
+        mat_identity[4 * 0 + 3] = 0.0;
+        mat_identity[4 * 0 + 0] = scale_ball;
+        mat_identity[4 * 1 + 1] = scale_ball;
+        mat_identity[4 * 2 + 2] = scale_ball;
+        mat_identity[4 * 0 + 3] = ctx->BallPosX; // x
+        mat_identity[4 * 1 + 3] = ctx->BallPosY; // y
+        SDL_PushGPUVertexUniformData(cmd, 0, &mat_identity, sizeof(mat_identity));
+        SDL_DrawGPUIndexedPrimitives(pass, 6, 1, 0, 0, 0);
+
 
         SDL_EndGPURenderPass(pass);
     }
