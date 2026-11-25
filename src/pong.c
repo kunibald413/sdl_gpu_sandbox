@@ -24,6 +24,10 @@ typedef struct PongContext {
     float BallPosX;
     float BallPosY;
 
+    float OppY;
+    int PlayerScore;
+    int OpponentScore;
+
 } PongContext;
 
 
@@ -163,7 +167,7 @@ static int Init(Context *c) {
     ctx->ExampleStartTicks = SDL_GetTicks();
 
     ctx->PlayerY = 0.0;
-    ctx->BallVelocityX = 0.01;
+    ctx->BallVelocityX = 0.005;
     ctx->BallVelocityY = 0.0001;
 
     c->ExampleData = ctx;
@@ -196,12 +200,65 @@ static void OnAppEvent(Context *c, SDL_Event *event) {
 static int Update(Context *c) {
     PongContext* ctx = (PongContext *)c->ExampleData;
 
-    // bounce off of edges
-    if (ctx->BallPosX < -1.0 || ctx->BallPosX > 1.0) ctx->BallVelocityX *= -1;
-    if (ctx->BallPosY < -1.0 || ctx->BallPosY > 1.0) ctx->BallVelocityY *= -1;
+    // opp y up and down, no tracking
+    float elapsed = (float)(SDL_GetTicks() - ctx->ExampleStartTicks) / 1000.0;
+    ctx->OppY = SDL_sinf(elapsed) + 0.25f;
 
+   // based on clip-space constants as in draw
+    const float ball_r = 0.05f; // scale_ball(0.1) * 0.5
+    const float player_half_width = 0.25f; // scale_player(0.5) * 0.5
+    const float player_center_offset = 0.70f; // as in draw
+
+    const float left_face = -player_center_offset + player_half_width;
+    const float right_face =  player_center_offset - player_half_width;
+    
     ctx->BallPosX += ctx->BallVelocityX;
     ctx->BallPosY += ctx->BallVelocityY;
+
+    // bounce off of edges
+    //if (ctx->BallPosX < -1.0 || ctx->BallPosX > 1.0) ctx->BallVelocityX *= -1;
+    if (ctx->BallPosY < -1.0 || ctx->BallPosY > 1.0) ctx->BallVelocityY *= -1;
+
+
+    // collide left player
+    if (ctx->BallVelocityX < 0 &&
+        ctx->BallPosX - ball_r <= left_face &&
+        ctx->BallPosX + ball_r >= -player_center_offset - player_half_width &&
+        ctx->BallPosY + ball_r >= ctx->PlayerY - player_half_width &&
+        ctx->BallPosY - ball_r <= ctx->PlayerY + player_half_width)
+    {
+        ctx->BallVelocityX *= -1;
+        ctx->BallPosX = left_face + ball_r; // jump out
+    }
+
+    // collide right player
+    if (ctx->BallVelocityX > 0 &&
+        ctx->BallPosX + ball_r >= right_face &&
+        ctx->BallPosX - ball_r <= player_center_offset + player_half_width &&
+        ctx->BallPosY + ball_r >= ctx->OppY - player_half_width &&
+        ctx->BallPosY - ball_r <= ctx->OppY + player_half_width)
+    {
+        ctx->BallVelocityX *= -1;
+        ctx->BallPosX = right_face - ball_r;
+    }
+
+    // when ball entirey out of screen, score
+    int scored = 0;
+    if (ctx->BallPosX < -1.0f - ball_r) { // left
+        ctx->OpponentScore++;
+        ctx->BallVelocityX = -0.01f; // respawn towards left
+        scored = 1;
+    } else if (ctx->BallPosX > 1.0f + ball_r) { // right
+        ctx->PlayerScore++;
+        ctx->BallVelocityX = 0.01f; // towards right
+        scored = 1;
+    }
+
+    if (scored) {
+        ctx->BallPosX = 0;
+        ctx->BallPosY = 0;
+        ctx->BallVelocityY = ((SDL_rand(2) == 0) ? 1.0f : -1.0f) * 0.069691337f;
+    }
 
     return 0;
 }
@@ -214,9 +271,11 @@ static int Draw(Context *c) {
 
     float elapsed = (float)(SDL_GetTicks() - ctx->ExampleStartTicks) / 1000.0;
     float z_add = SDL_sinf(elapsed) * 0.5;
-    float opp_y = SDL_sinf(elapsed) + 0.25;
+    //float opp_y = SDL_sinf(elapsed) + 0.25;
+    float opp_y = ctx->OppY;
     z_add += 0.0;
 
+    const float player_center_offset = 0.7;
     const float scale_player = 0.5;
     const float scale_ball = 0.1;
     
@@ -253,14 +312,14 @@ static int Draw(Context *c) {
         SDL_BindGPUIndexBuffer(pass, &buff_bind_idx, SDL_GPU_INDEXELEMENTSIZE_32BIT);
 
         
-        mat_identity[4 * 0 + 3] = -0.70;
+        mat_identity[4 * 0 + 3] = -player_center_offset;
         mat_identity[4 * 0 + 0] = scale_player;
         mat_identity[4 * 1 + 1] = scale_player;
         mat_identity[4 * 2 + 2] = scale_player;
         SDL_PushGPUVertexUniformData(cmd, 0, &mat_identity, sizeof(mat_identity));
         SDL_DrawGPUIndexedPrimitives(pass, 6, 1, 0, 0, 0);
 
-        mat_identity[4 * 0 + 3] = 0.70;
+        mat_identity[4 * 0 + 3] = player_center_offset;
         mat_identity[4 * 1 + 3] = opp_y;
         SDL_PushGPUVertexUniformData(cmd, 0, &mat_identity, sizeof(mat_identity));
         SDL_DrawGPUIndexedPrimitives(pass, 6, 1, 0, 0, 0);
@@ -269,8 +328,8 @@ static int Draw(Context *c) {
         mat_identity[4 * 0 + 0] = scale_ball;
         mat_identity[4 * 1 + 1] = scale_ball;
         mat_identity[4 * 2 + 2] = scale_ball;
-        mat_identity[4 * 0 + 3] = ctx->BallPosX; // x
-        mat_identity[4 * 1 + 3] = ctx->BallPosY; // y
+        mat_identity[4 * 0 + 3] = ctx->BallPosX;
+        mat_identity[4 * 1 + 3] = ctx->BallPosY;
         SDL_PushGPUVertexUniformData(cmd, 0, &mat_identity, sizeof(mat_identity));
         SDL_DrawGPUIndexedPrimitives(pass, 6, 1, 0, 0, 0);
 
@@ -278,6 +337,10 @@ static int Draw(Context *c) {
         SDL_EndGPURenderPass(pass);
     }
     SDL_SubmitGPUCommandBuffer(cmd);
+
+    char title[64];
+    SDL_snprintf(title, sizeof(title), "Pong Score: %d - %d", ctx->PlayerScore, ctx->OpponentScore);
+    SDL_SetWindowTitle(c->Window, title);
 
     return 0;
 }
