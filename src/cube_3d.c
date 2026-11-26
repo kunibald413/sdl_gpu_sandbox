@@ -40,42 +40,50 @@ static int Init(Context *c) {
 
     // VERT & INDEX BUFFERS
     const float CUBE_HALF = 0.5;
+
+    #define COLOR_PEACH      0.8549f, 0.5882f, 0.5176f // #DA9684
+    #define COLOR_PERIWINKLE 0.4235f, 0.4627f, 0.7333f // #6C76BB
+    #define COLOR_FOREST     0.0588f, 0.3020f, 0.0627f // #0F4D10
+    #define COLOR_RUST       0.7412f, 0.2431f, 0.0980f // #BD3E19
+    #define COLOR_MAGENTA    0.8510f, 0.2196f, 0.5176f // #D93884
+    #define COLOR_TEAL       0.1412f, 0.5451f, 0.4745f // #248B79
+
     Cube3DVert verticies[4*6] = {
         // front face
-        {-CUBE_HALF,  CUBE_HALF,  CUBE_HALF, 0.5, 0.5, 0.0}, // 0
-        { CUBE_HALF,  CUBE_HALF,  CUBE_HALF, 0.5, 0.5, 0.0},
-        { CUBE_HALF, -CUBE_HALF,  CUBE_HALF, 0.5, 0.5, 0.0},
-        {-CUBE_HALF, -CUBE_HALF,  CUBE_HALF, 0.5, 0.5, 0.0},
+        {-CUBE_HALF,  CUBE_HALF,  CUBE_HALF, COLOR_PEACH}, // 0
+        { CUBE_HALF,  CUBE_HALF,  CUBE_HALF, COLOR_PEACH},
+        { CUBE_HALF, -CUBE_HALF,  CUBE_HALF, COLOR_PEACH},
+        {-CUBE_HALF, -CUBE_HALF,  CUBE_HALF, COLOR_PEACH},
 
         // back 
-        {-CUBE_HALF,  CUBE_HALF, -CUBE_HALF, 0.0, 0.5, 0.0}, // 4
-        { CUBE_HALF,  CUBE_HALF, -CUBE_HALF, 0.0, 0.5, 0.0},
-        { CUBE_HALF, -CUBE_HALF, -CUBE_HALF, 0.0, 0.5, 0.0},
-        {-CUBE_HALF, -CUBE_HALF, -CUBE_HALF, 0.0, 0.5, 0.0},
+        {-CUBE_HALF,  CUBE_HALF, -CUBE_HALF, COLOR_PERIWINKLE}, // 4
+        { CUBE_HALF,  CUBE_HALF, -CUBE_HALF, COLOR_PERIWINKLE},
+        { CUBE_HALF, -CUBE_HALF, -CUBE_HALF, COLOR_PERIWINKLE},
+        {-CUBE_HALF, -CUBE_HALF, -CUBE_HALF, COLOR_PERIWINKLE},
 
         // top
-        {-CUBE_HALF,  CUBE_HALF,  CUBE_HALF, 0.5, 0.0, 0.0}, // 8
-        {-CUBE_HALF,  CUBE_HALF, -CUBE_HALF, 0.5, 0.0, 0.0},
-        { CUBE_HALF,  CUBE_HALF, -CUBE_HALF, 0.5, 0.0, 0.0},
-        { CUBE_HALF,  CUBE_HALF,  CUBE_HALF, 0.5, 0.0, 0.0},
+        {-CUBE_HALF,  CUBE_HALF,  CUBE_HALF, COLOR_FOREST}, // 8
+        {-CUBE_HALF,  CUBE_HALF, -CUBE_HALF, COLOR_FOREST},
+        { CUBE_HALF,  CUBE_HALF, -CUBE_HALF, COLOR_FOREST},
+        { CUBE_HALF,  CUBE_HALF,  CUBE_HALF, COLOR_FOREST},
 
         // bottom
-        {-CUBE_HALF, -CUBE_HALF,  CUBE_HALF, 0.0, 0.0, 0.5}, // 12
-        {-CUBE_HALF, -CUBE_HALF, -CUBE_HALF, 0.0, 0.0, 0.5},
-        { CUBE_HALF, -CUBE_HALF, -CUBE_HALF, 0.0, 0.0, 0.5},
-        { CUBE_HALF, -CUBE_HALF,  CUBE_HALF, 0.0, 0.0, 0.5},
+        {-CUBE_HALF, -CUBE_HALF,  CUBE_HALF, COLOR_RUST}, // 12
+        {-CUBE_HALF, -CUBE_HALF, -CUBE_HALF, COLOR_RUST},
+        { CUBE_HALF, -CUBE_HALF, -CUBE_HALF, COLOR_RUST},
+        { CUBE_HALF, -CUBE_HALF,  CUBE_HALF, COLOR_RUST},
 
         // left
-        {-CUBE_HALF,  CUBE_HALF,  CUBE_HALF, 0.0, 0.5, 0.5}, // 16
-        {-CUBE_HALF, -CUBE_HALF,  CUBE_HALF, 0.0, 0.5, 0.5},
-        {-CUBE_HALF, -CUBE_HALF, -CUBE_HALF, 0.0, 0.5, 0.5},
-        {-CUBE_HALF,  CUBE_HALF, -CUBE_HALF, 0.0, 0.5, 0.5},
+        {-CUBE_HALF,  CUBE_HALF,  CUBE_HALF, COLOR_MAGENTA}, // 16
+        {-CUBE_HALF, -CUBE_HALF,  CUBE_HALF, COLOR_MAGENTA},
+        {-CUBE_HALF, -CUBE_HALF, -CUBE_HALF, COLOR_MAGENTA},
+        {-CUBE_HALF,  CUBE_HALF, -CUBE_HALF, COLOR_MAGENTA},
 
         // right
-        {CUBE_HALF,  CUBE_HALF,  CUBE_HALF, 0.5, 0.0, 0.5}, // 20
-        {CUBE_HALF, -CUBE_HALF,  CUBE_HALF, 0.5, 0.0, 0.5},
-        {CUBE_HALF, -CUBE_HALF, -CUBE_HALF, 0.5, 0.0, 0.5},
-        {CUBE_HALF,  CUBE_HALF, -CUBE_HALF, 0.5, 0.0, 0.5},
+        {CUBE_HALF,  CUBE_HALF,  CUBE_HALF, COLOR_TEAL}, // 20
+        {CUBE_HALF, -CUBE_HALF,  CUBE_HALF, COLOR_TEAL},
+        {CUBE_HALF, -CUBE_HALF, -CUBE_HALF, COLOR_TEAL},
+        {CUBE_HALF,  CUBE_HALF, -CUBE_HALF, COLOR_TEAL},
     };
 
     // 6 faces, each 2 triangles, each 3 corners
@@ -212,6 +220,11 @@ static int Update(Context *c) {
     return 0;
 }
 
+static void OnAppEvent(Context *c, SDL_Event *event) {
+    (void)c;
+    (void)event;
+}
+
 static int Draw(Context *c) {
     (void)c;
 
@@ -236,13 +249,20 @@ static int Draw(Context *c) {
         SDL_GPURenderPass *pass = SDL_BeginGPURenderPass(cmd, &ct, 1, NULL);
 
         float t = (float)SDL_GetTicks()  / 1000.0;
+
+
         float s = SDL_sinf(t);
         float c = SDL_cosf(t);
 
+        float rad = 3.14 / 3;
+        rad = c * rad;
+        c = SDL_cosf(rad);
+        s = SDL_sinf(rad);
+
         float mat_identity[4*4] = {
-            1.0f, 0.0f, 0.0f, 0.0f,
+            c,    0.0f,    -s, 0.0f,
             0.0f, 1.0f, 0.0,  0.0f,
-            0.0f, 0.0,  1.0f, 0.0f,
+              s, 0.0,     c, 0.0f,
             0.0f, 0.0f, 0.0f, 1.0f
         };
 
@@ -278,10 +298,7 @@ static void Quit (Context *c) {
     c->ExampleData = NULL;
 }
 
-static void OnAppEvent(Context *c, SDL_Event *event) {
-    (void)c;
-    (void)event;
-}
+
 
 Example Cube3D_Example = {
     "Cube3D", Init, Update, Draw, Quit, OnAppEvent
