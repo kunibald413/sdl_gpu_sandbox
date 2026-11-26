@@ -18,6 +18,7 @@ static Example *Examples[] = {
     &Pong_Example,
     &BasicCompute_Example,
     &HexFractalStateless_Example,
+    &Cube3D_Example,
 };
 #define NUM_EXAMPLES SDL_arraysize(Examples)
 

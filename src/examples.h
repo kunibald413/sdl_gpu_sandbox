@@ -13,5 +13,6 @@ extern Example Basic3DPyramid_Example;
 extern Example Pong_Example;
 extern Example BasicCompute_Example;
 extern Example HexFractalStateless_Example;
+extern Example Cube3D_Example;
 
 #endif

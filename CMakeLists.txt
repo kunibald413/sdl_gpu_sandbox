@@ -25,6 +25,7 @@ add_executable(${PROJECT_NAME}
     src/pong.c
     src/basic_compute.c
     src/hex_fractal_stateless.c
+    src/cube_3d.c
     
 )
 
